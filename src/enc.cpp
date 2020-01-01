@@ -30,12 +30,12 @@ int dec_basic(string file, string out) {
 
    size = inptr.tellg();
    inptr.seekg(0, ios::beg);
-   debug("enc_test", "File size (bytes):", size);
+   debug("dec_basic", "File size (bytes):", size);
 
 // Reading (needs to be done in chuncks)
 
    int len = size % C_NO;
-   debug("enc_test", "len (bytes)", len);
+   debug("dec_basic", "len (bytes)", len);
 
    int cw_no=0;
    
@@ -62,7 +62,7 @@ int dec_basic(string file, string out) {
 
 // Exit script (Add stats?)
 
-   debug("enc_test", "Deleting trie...");
+   debug("dec_basic", "Deleting trie...");
    delete root;
    cout << endl;
 
@@ -80,18 +80,10 @@ int enc_basic(string file, string out) {
 
    size = inptr.tellg();
    inptr.seekg(0, ios::beg);
-   debug("enc_test", "File size (bytes):", size);
+   debug("enc_basic", "Input file size (bytes):", size);
 
-// Reading (needs to be done in chuncks)
 
-   int len = size % C_NO;
-   debug("enc_test", "len (bytes)", len);
-
-   int cw_no=0;
-   
-   bitset<B_SIZE> tmp = br(inptr);
-   narrator(tmp);
-
+// Reading needs to be done in chuncks
 // Trie setup
 
    trie<string>* root = new trie<string>();
@@ -108,11 +100,10 @@ int enc_basic(string file, string out) {
       ret = root->LZW(*buffer, inptr, outptr, read_flag, index, 0);
       index++;
    }
-   
 
 // Exit script (Add stats?)
 
-   debug("enc_test", "Deleting trie...");
+   debug("enc_basic", "Deleting trie...");
    delete root;
    cout << endl;
 

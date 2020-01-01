@@ -37,8 +37,7 @@ template <class T>
 class trie {
    private:
       trie* papa;    // Pointers are better here.
-      trie* lchild;
-      trie* rchild;
+      vector<trie<T>*> children;
 
    public:
       T w;
@@ -55,10 +54,6 @@ class trie {
       // METHODS
       int num_children(void);
       bool is_leaf(void);
-      bool has_lchild(void);
-      bool has_rchild(void);
-      trie& get_lchild(void);
-      trie& get_rchild(void);
 
       trie<T>* LZW(T&, ifstream&, ofstream&, bool&, int, int); // bool& should be true at start
       int cprint(int depth=0, int cnt=1);
@@ -110,8 +105,7 @@ trie<T>::trie()
    , dic_index(0)
    , depth(0)
    , papa(0)
-   , lchild(0)
-   , rchild(0)
+   , children(vector<trie<T>*>())
 { }
 
 template <class T>
@@ -121,8 +115,7 @@ trie<T>::trie(T word, int index, int d)
    , dic_index(index)
    , depth(d)
    , papa(0)
-   , lchild(0)
-   , rchild(0)
+   , children(vector<trie<T>*>())
 { 
 //narrator("New node with Index ", dic_index, "| Depth ", depth);
 }
@@ -131,15 +124,10 @@ trie<T>::trie(T word, int index, int d)
 template <class T>
 trie<T>::~trie() {
    //cout << this << endl;
-   if(lchild) {
-      //cout << "l " << flush;
-      delete lchild;
-      this->lchild = 0;
-   }
-   if(rchild) {
+   for(int i=children.size()-1; i>=0; i--) {
       //cout << "r " << flush;
-      delete rchild;
-      this->rchild = 0;
+      delete children[i];
+      children.pop_back();
    }
    cout << "X" << flush;
 }
@@ -154,23 +142,5 @@ bool trie<T>::is_leaf(void) { // Not tested
    if(w.bsize == 0) 
       return true;
    return false;
-}
-template <class T>
-bool trie<T>::has_lchild(void) {
-   if(this->lchild == 0) return false;
-   else return true;
-}
-template <class T>
-bool trie<T>::has_rchild(void) {
-   if(this->rchild == 0) return false;
-   else return true;
-}
-template <class T>
-trie<T>& trie<T>::get_lchild(void) {
-   return *lchild;
-}
-template <class T>
-trie<T>& trie<T>::get_rchild(void) {
-   return *rchild;
 }
 

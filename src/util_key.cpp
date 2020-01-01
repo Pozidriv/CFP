@@ -276,7 +276,6 @@ bool trie<bit_word&>::path(trie<bit_word&> &t, bit_word &word) { // not needed?
 } 
 */
 
-// Read call
 template <>
 trie<string>* trie<string>::LZW(
    string& thing, ifstream& fin, ofstream& fout
@@ -285,7 +284,7 @@ trie<string>* trie<string>::LZW(
    //debug("trie|insert", "Depth", d, "Current buff:", "\""+thing+"\"");
    if(index<0) index=0;
 
-   if(d>=C_SIZE*thing.size() && !read_flag) { // Last buffer and exceeding size of buffer
+   if(d>=thing.size() && !read_flag) { // Last buffer and exceeding size of buffer
       debug("trie|insert", "Writing last index.");
       
       // TAKE CARE OF LAST THING 
@@ -293,30 +292,31 @@ trie<string>* trie<string>::LZW(
       fout << this->dic_index;
       return 0; // Indicate end
    }
-   while(d>=C_SIZE*thing.size() && read_flag) { // Mult by C_SIZE since sorting wrt bits; Note: should not loop more than once...
-      debug("trie|insert", "End of buffer reached. d: ", d, "| Current:", "\""+thing+"\"", "| Reading...");
+   while(d>=thing.size() && read_flag) { // Note: should not loop more than once...
+      //debug("trie|insert", "End of buffer reached. d: ", d, "| Current:", "\""+thing+"\"", "| Reading...");
       char *ptr = new char[BUFFER_SIZE+1];
       ptr[BUFFER_SIZE] = 0; // To avoid major fuckups
       fin.read(ptr, BUFFER_SIZE);
       int n = fin.gcount();
 
       if(n == BUFFER_SIZE) {
-         debug("trie|insert", "Read full buffer.");
+         //debug("trie|insert", "Read full buffer.");
          string tmp(ptr);
          thing.append(tmp);
-         debug("trie|insert", "New thing:", "\""+thing+"\"");
+         //debug("trie|insert", "New thing:", "\""+thing+"\"");
       } else {
-         debug("trie|insert", "End of file reached,", n, "bytes left.");
+         //debug("trie|insert", "End of file reached,", n, "bytes left.");
          ptr[n] = 0; // Terminate char array before string conversion
          string tmp(ptr);
          thing.append(tmp);
-         debug("trie|insert", "New thing:", "\""+thing+"\"");
+         //debug("trie|insert", "New thing:", "\""+thing+"\"");
          read_flag=false; // No more reading 
       }
       delete ptr;
    }
    int wi = d/C_SIZE, bi = d%C_SIZE;
-   string cchar = thing.substr(wi, 1);
+   //string cchar = thing.substr(wi, 1);
+   /*
    //debug("trie|insert", "cchar:", "\""+cchar+"\"");
    
    if(cchar == "") {
@@ -329,45 +329,34 @@ trie<string>* trie<string>::LZW(
    //debug("trie|insert", "cchar:", "\""+cchar+"\"", "| cword:", cword, "| cbit:", bi);
 
    bool cbit = cword[C_SIZE-bi-1]; // Note: doing a standard bit by bit sorting
-
-   if(cbit){ // Right
-      if(rchild) {
-         //debug("trie|insert", "Right");
-         return rchild->LZW(thing, fin, fout, read_flag, index, d+1);
-      } else {
-         int ch_d = d+1;
-         int tok_len = (ch_d/8)+(ch_d%C_SIZE == 0 ? 0 : 1); 
-         string token = thing.substr(0, tok_len);
-         thing = thing.substr(tok_len, thing.size()-1);
-         trie<string>* new_trie = new trie(token, index, ch_d);
-         rchild = new_trie;
-         //debug("trie|insert", "Insert Success r", ch_d, "| value:", "\""+token+"\"", "| tok_len", tok_len);
-         //debug("trie|insert", "Node", new_trie, "| I", new_trie->dic_index, "| d", new_trie->depth);
-         //debug("trie|insert", "Node", rchild, "| I", rchild->dic_index, "| d", rchild->depth);
-         //new_trie->papa = this;
-
-         fout << this->dic_index << token[token.size()-1];
-         return rchild;
+   */
+   //bool cbit = (cchar.c_str()[0]%2 == 0); // branching based on parity
+   int cbit=-1;
+   for(int i=0; i<children.size(); i++) {
+      if(thing[d] == children[i]->w[d]) {
+         //debug("trie|insert", "bchild:", i, "| bchar:","\""+thing.substr(d,1)+"\"");
+         cbit = i;
+         break;
       }
-   } else {   // Left
-      if(lchild) {
-         //debug("trie|insert", "Left");
-         return lchild->LZW(thing, fin, fout, read_flag, index, d+1);
-      } else {
-         int ch_d = d+1;
-         int tok_len = (ch_d/8)+(ch_d%C_SIZE == 0 ? 0 : 1); 
-         string token = thing.substr(0, tok_len);
-         thing = thing.substr(tok_len, thing.size()-1);
-         trie<string>* new_trie = new trie(token, index, ch_d);
-         lchild = new_trie;
-         //debug("trie|insert", "Insert Success l", ch_d, "| value:", "\""+token+"\"", "| tok_len", tok_len);
-         //debug("trie|insert", "Node", new_trie, "| I", new_trie->dic_index, "| d", new_trie->depth);
-         //debug("trie|insert", "Node", lchild, "| I", lchild->dic_index, "| d", lchild->depth);
-         //new_trie->papa = this;
+   }
 
-         fout << this->dic_index << token[token.size()-1];
-         return lchild;
-      }
+   int ch_d = d+1;
+   int tok_len = ch_d; 
+   if(cbit==-1){ // New child
+      string token = thing.substr(0, tok_len);
+      thing = thing.substr(tok_len, thing.size()-1);
+      trie<string>* new_trie = new trie(token, index, ch_d);
+      children.push_back(new_trie);
+      //debug("trie|insert", "Node", new_trie, "| I", new_trie->dic_index, "| d", new_trie->depth);
+      //debug("trie|insert", "Node", rchild, "| I", rchild->dic_index, "| d", rchild->depth);
+      //new_trie->papa = this;
+
+      fout << this->dic_index << token[token.size()-1];
+      //debug("trie|insert", "Insert Success r", ch_d, "| value:", "\""+token+"\"", "| tok_len", tok_len, "| pindex: ", this->dic_index);
+
+      return new_trie;
+   } else {   // Continue with existing child
+      return children[cbit]->LZW(thing, fin, fout, read_flag, index, d+1);
    }
    debug("trie|insert", "Potential bug?");
    return 0;

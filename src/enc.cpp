@@ -37,34 +37,34 @@ int dec_basic(string file, string out) {
    int len = size % C_NO;
    debug("dec_basic", "len (bytes)", len);
 
-   int cw_no=0;
-   
-   bitset<B_SIZE> tmp = br(inptr);
-   narrator(tmp);
-
-// Trie setup
-
-   trie<string>* root = new trie<string>();
-   trie<string>* ret = root;
-
+// dictionary setup
+   vector<string> dictionary;
 
 // Writing file
-   string* buffer = new string();
+   string buffer;
+   dictionary.push_back(buffer);
    int index=1;
    bool read_flag=true;
 
-   while(ret) {
-      //cout << inptr.tellg() << " ";
-      ret = root->LZW(*buffer, inptr, outptr, read_flag, index, 0);
-      index++;
+   while(getline(inptr, buffer, '\0')) {
+      index = atoi(buffer.c_str());
+      debug("dec_basic", "Index", index);
+      if(index >= dictionary.size()) {
+         debug("dec_basic", "Index", index, "exceeding dictionary size", dictionary.size());
+         exit(-1);
+      }
+      outptr << dictionary[index];
+      if(getline(inptr, buffer, '\0')) {
+         debug("dec_basic", "buff", buffer);
+         outptr << buffer;
+         string tmp(dictionary[index]);
+         tmp = tmp+buffer;
+         dictionary.push_back(tmp);
+      } else {
+         debug("dec_basic", "No buffer read");
+         break;
+      }
    }
-   
-
-// Exit script (Add stats?)
-
-   debug("dec_basic", "Deleting trie...");
-   delete root;
-   cout << endl;
 
    inptr.close();
    outptr.close();
@@ -85,7 +85,6 @@ int enc_basic(string file, string out) {
 
 // Reading needs to be done in chuncks
 // Trie setup
-
    trie<string>* root = new trie<string>();
    trie<string>* ret = root;
 
@@ -95,6 +94,9 @@ int enc_basic(string file, string out) {
    int index=1;
    bool read_flag=true;
 
+// Header (not needed, null separated index/characters)
+
+// LZW
    while(ret) {
       //cout << inptr.tellg() << " ";
       ret = root->LZW(*buffer, inptr, outptr, read_flag, index, 0);
@@ -110,7 +112,6 @@ int enc_basic(string file, string out) {
    inptr.close();
    outptr.close();
    return 0;
-   
 }
 
 int enc_test(string file, string out) {

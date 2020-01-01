@@ -17,6 +17,7 @@
 #define M_DEF "default"
 #define M_TEST "test"
 #define M_BASIC "basic"
+#define M_DEC_BASIC "dec_basic"
 
 
 using namespace std;
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
       return 0;
    }
 
-   vector<string> modes = { M_DEF, M_TEST, M_BASIC };
+   vector<string> modes = { M_DEF, M_TEST, M_BASIC, M_DEC_BASIC };
 
    string token, file, out;
    int fstart=1, mode=0;
@@ -77,9 +78,13 @@ int main(int argc, char *argv[]) {
                narrator("Debug mode");
                enc_test(file, out);
                break;
-      case 2 : // DEBUG
+      case 2 : // M_BASIC
                narrator("Basic mode");
                enc_basic(file, out);
+               break;
+      case 3 : // M_DEC_BASIC
+               narrator("Decoding basic mode");
+               dec_basic(file, out);
                break;
       default: 
                narrator("No default implemented");

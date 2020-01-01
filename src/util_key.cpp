@@ -351,8 +351,9 @@ trie<string>* trie<string>::LZW(
       //debug("trie|insert", "Node", rchild, "| I", rchild->dic_index, "| d", rchild->depth);
       //new_trie->papa = this;
 
-      fout << this->dic_index << token[token.size()-1];
-      //debug("trie|insert", "Insert Success r", ch_d, "| value:", "\""+token+"\"", "| tok_len", tok_len, "| pindex: ", this->dic_index);
+      fout << this->dic_index << '\0';
+      fout << token[token.size()-1] << '\0';
+      debug("trie|insert", "depth", ch_d, "| value:", "\""+token+"\"", "| tok_len", tok_len, "| pindex: ", this->dic_index);
 
       return new_trie;
    } else {   // Continue with existing child

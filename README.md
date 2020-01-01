@@ -13,4 +13,5 @@ CFP [-option] [input file] [output file]
 ```
 
 Currently implemented options (very incomplete):
-* `basic` a basic LZW implementation. Unfortunately the decoder for the output still needs to be implemented.
+* `basic` a basic LZW implementation.
+* `dec_basic` the decoder for the `basic` encoding
